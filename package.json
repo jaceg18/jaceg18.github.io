@@ -1,0 +1,40 @@
+{
+  "name": "minecraft-farm-calculator",
+  "version": "2.0.0",
+  "description": "A modern web application for calculating return on investment (ROI) for automated Minecraft farms",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "serve": "python -m http.server 8000",
+    "dev": "python -m http.server 8000"
+  },
+  "keywords": [
+    "minecraft",
+    "farming",
+    "calculator",
+    "roi",
+    "automation",
+    "redstone",
+    "web-app"
+  ],
+  "author": "JaceG18",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/minecraft-farm-calculator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/minecraft-farm-calculator/issues"
+  },
+  "homepage": "https://yourusername.github.io/minecraft-farm-calculator",
+  "devDependencies": {},
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

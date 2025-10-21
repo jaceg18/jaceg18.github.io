@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Farm ROI Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-seedling"></i>
+                    <h1>Minecraft Farm Calculator</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" id="exportBtn">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn btn-outline" id="importBtn">
+                        <i class="fas fa-upload"></i> Import
+                    </button>
+                    <input type="file" id="importInput" accept=".json" style="display: none;">
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="navigation">
+            <div class="nav-container">
+                <button class="nav-btn active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-btn" data-page="plants">
+                    <i class="fas fa-leaf"></i>
+                    <span>Plant Profiles</span>
+                </button>
+                <button class="nav-btn" data-page="costs">
+                    <i class="fas fa-coins"></i>
+                    <span>Cost Profiles</span>
+                </button>
+                <button class="nav-btn" data-page="design">
+                    <i class="fas fa-drafting-compass"></i>
+                    <span>Farm Design</span>
+                </button>
+                <button class="nav-btn" data-page="calculator">
+                    <i class="fas fa-calculator"></i>
+                    <span>Calculator</span>
+                </button>
+                <button class="nav-btn" data-page="comparison">
+                    <i class="fas fa-balance-scale"></i>
+                    <span>Comparison</span>
+                </button>
+                <button class="nav-btn" data-page="shop">
+                    <i class="fas fa-store"></i>
+                    <span>Shop & Suggestions</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <div class="page active" id="dashboard-page">
+                <div class="page-header">
+                    <h2>Dashboard</h2>
+                    <p>Overview of your farm calculations and quick access to tools</p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Quick Stats</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Plants</span>
+                                <span class="stat-value" id="totalPlants">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Total Cost</span>
+                                <span class="stat-value" id="totalCost">$0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Hourly Revenue</span>
+                                <span class="stat-value" id="hourlyRevenue">$0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Break-even Time</span>
+                                <span class="stat-value" id="breakEvenTime">0h</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Recent Calculations</h3>
+                        </div>
+                        <div class="card-content">
+                            <div id="recentCalculations" class="recent-list">
+                                <p class="no-data">No recent calculations</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Quick Actions</h3>
+                        </div>
+                        <div class="card-content">
+                            <button class="btn btn-primary" id="quickCalcBtn">
+                                <i class="fas fa-calculator"></i> New Calculation
+                            </button>
+                            <button class="btn btn-secondary" id="quickPlantBtn">
+                                <i class="fas fa-plus"></i> Add Plant Profile
+                            </button>
+                            <button class="btn btn-secondary" id="quickCompareBtn">
+                                <i class="fas fa-balance-scale"></i> Compare Farms
+                            </button>
+                            <button class="btn btn-secondary" id="quickShopBtn">
+                                <i class="fas fa-store"></i> Add Shop Item
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plant Profiles Page -->
+            <div class="page" id="plants-page">
+                <div class="page-header">
+                    <h2>Plant Profiles</h2>
+                    <p>Manage crop types, prices, and growth characteristics</p>
+                </div>
+                
+                <div class="plants-container">
+                    <div class="plants-sidebar">
+                        <button class="btn btn-primary" id="addPlantBtn">
+                            <i class="fas fa-plus"></i> Add New Plant
+                        </button>
+                        <div class="plants-list" id="plantsList">
+                            <!-- Plant list will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="plants-main">
+                        <div class="plant-form" id="plantForm">
+                            <h3>Plant Profile Editor</h3>
+                            <form id="plantFormElement">
+                                <div class="form-group">
+                                    <label for="plantName">Plant Name</label>
+                                    <input type="text" id="plantName" required>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="sellPrice">Sell Price (per item)</label>
+                                        <input type="number" id="sellPrice" step="0.01" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="density">Density per Block</label>
+                                        <input type="number" id="density" step="0.01" min="0" max="1" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="yield">Yield per Plant per Hour</label>
+                                        <input type="number" id="yield" step="0.001" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="processCost">Processing Cost per Layer</label>
+                                        <input type="number" id="processCost" step="0.01" min="0">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="isProcessed">
+                                        <span class="checkmark"></span>
+                                        Is Processed Product (e.g., Green Dye)
+                                    </label>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Save Plant</button>
+                                    <button type="button" class="btn btn-secondary" id="cancelPlantBtn">Cancel</button>
+                                    <button type="button" class="btn btn-danger" id="deletePlantBtn" style="display: none;">Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cost Profiles Page -->
+            <div class="page" id="costs-page">
+                <div class="page-header">
+                    <h2>Cost Profiles</h2>
+                    <p>Configure redstone component prices and build costs</p>
+                </div>
+                
+                <div class="costs-container">
+                    <div class="costs-grid" id="costsGrid">
+                        <!-- Cost inputs will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="costs-actions">
+                        <button class="btn btn-primary" id="saveCostsBtn">
+                            <i class="fas fa-save"></i> Save Cost Profile
+                        </button>
+                        <button class="btn btn-secondary" id="resetCostsBtn">
+                            <i class="fas fa-undo"></i> Reset to Defaults
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farm Design Page -->
+            <div class="page" id="design-page">
+                <div class="page-header">
+                    <h2>Farm Design</h2>
+                    <p>Configure your farm layout and design parameters</p>
+                </div>
+                
+                <div class="design-container">
+                    <div class="design-form">
+                        <div class="form-section">
+                            <h3>Plot Configuration</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="plotWidth">Plot Width (blocks)</label>
+                                    <input type="number" id="plotWidth" min="1" value="74">
+                                </div>
+                                <div class="form-group">
+                                    <label for="plotDepth">Plot Depth (blocks)</label>
+                                    <input type="number" id="plotDepth" min="1" value="74">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>Design Parameters</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="designLayers">Layers</label>
+                                    <input type="number" id="designLayers" min="1" value="2">
+                                </div>
+                                <div class="form-group">
+                                    <label for="designLanes">Collection Lanes per Layer</label>
+                                    <input type="number" id="designLanes" min="1" value="10">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="observerShare">Observer Share (1 per N pistons)</label>
+                                    <input type="number" id="observerShare" min="1" value="16">
+                                </div>
+                                <div class="form-group">
+                                    <label for="budget">Budget</label>
+                                    <input type="number" id="budget" min="0" step="1000" value="2000000">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="pistonsPerPlant">
+                                    <span class="checkmark"></span>
+                                    Use Pistons per Plant (Sugar Cane style)
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="includeUnloaders" checked>
+                                    <span class="checkmark"></span>
+                                    Include Unloaders (Comparators/Hoppers/Chests)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="btn btn-primary" id="saveDesignBtn">
+                                <i class="fas fa-save"></i> Save Design
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="design-preview">
+                        <h3>Design Preview</h3>
+                        <div class="preview-stats" id="designPreview">
+                            <div class="preview-item">
+                                <span class="preview-label">Plot Size:</span>
+                                <span class="preview-value" id="previewPlotSize">74 x 74</span>
+                            </div>
+                            <div class="preview-item">
+                                <span class="preview-label">Total Area:</span>
+                                <span class="preview-value" id="previewTotalArea">5,476 blocks</span>
+                            </div>
+                            <div class="preview-item">
+                                <span class="preview-label">Layers:</span>
+                                <span class="preview-value" id="previewLayers">2</span>
+                            </div>
+                            <div class="preview-item">
+                                <span class="preview-label">Collection Lanes:</span>
+                                <span class="preview-value" id="previewLanes">10 per layer</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculator Page -->
+            <div class="page" id="calculator-page">
+                <div class="page-header">
+                    <h2>Farm ROI Calculator</h2>
+                    <p>Calculate return on investment for your farm designs</p>
+                </div>
+                
+                <div class="calculator-container">
+                    <div class="calculator-form">
+                        <div class="form-section">
+                            <h3>Farm Configuration</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="calcPlantType">Plant Type</label>
+                                    <select id="calcPlantType" required>
+                                        <option value="">Select a plant...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="calcLayers">Layers</label>
+                                    <input type="number" id="calcLayers" min="1" value="2">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="calcLanes">Collection Lanes per Layer</label>
+                                    <input type="number" id="calcLanes" min="1" value="10">
+                                </div>
+                                <div class="form-group">
+                                    <label for="calcObserverShare">Observer Share</label>
+                                    <input type="number" id="calcObserverShare" min="1" value="16">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="calcPistonsPerPlant">
+                                    <span class="checkmark"></span>
+                                    Use Pistons per Plant
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="calcIncludeUnloaders" checked>
+                                    <span class="checkmark"></span>
+                                    Include Unloaders
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="btn btn-primary" id="calculateBtn">
+                                <i class="fas fa-calculator"></i> Calculate ROI
+                            </button>
+                            <button class="btn btn-secondary" id="clearCalcBtn">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="calculator-results" id="calculatorResults">
+                        <h3>Calculation Results</h3>
+                        <div class="results-content">
+                            <p class="no-results">Configure your farm and click "Calculate ROI" to see results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Page -->
+            <div class="page" id="comparison-page">
+                <div class="page-header">
+                    <h2>Farm Comparison</h2>
+                    <p>Compare different farm designs side by side</p>
+                </div>
+                
+                <div class="comparison-container">
+                    <div class="comparison-controls">
+                        <button class="btn btn-primary" id="addComparisonBtn">
+                            <i class="fas fa-plus"></i> Add Farm to Compare
+                        </button>
+                        <button class="btn btn-secondary" id="clearComparisonBtn">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                    
+                    <div class="comparison-results" id="comparisonResults">
+                        <p class="no-results">Add farms to compare their performance</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shop & Suggestions Page -->
+            <div class="page" id="shop-page">
+                <div class="page-header">
+                    <h2>Shop Items & Suggestions</h2>
+                    <p>Manage custom shop items and submit suggestions for improvements</p>
+                </div>
+                
+                <div class="shop-container">
+                    <div class="shop-sidebar">
+                        <div class="shop-section">
+                            <h3>Custom Shop Items</h3>
+                            <button class="btn btn-primary" id="addShopItemBtn">
+                                <i class="fas fa-plus"></i> Add Shop Item
+                            </button>
+                            <div class="shop-items-list" id="shopItemsList">
+                                <!-- Shop items will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="shop-main">
+                        <div class="shop-form" id="shopItemForm">
+                            <h3>Shop Item Editor</h3>
+                            <form id="shopItemFormElement">
+                                <div class="form-group">
+                                    <label for="shopItemName">Item Name</label>
+                                    <input type="text" id="shopItemName" required>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="shopItemPrice">Price per Item</label>
+                                        <input type="number" id="shopItemPrice" step="0.01" min="0" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="shopItemCategory">Category</label>
+                                        <select id="shopItemCategory" required>
+                                            <option value="redstone">Redstone Components</option>
+                                            <option value="storage">Storage & Transport</option>
+                                            <option value="processing">Processing Equipment</option>
+                                            <option value="misc">Miscellaneous</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="shopItemDescription">Description (Optional)</label>
+                                    <textarea id="shopItemDescription" rows="3" placeholder="Brief description of the item..."></textarea>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Save Item</button>
+                                    <button type="button" class="btn btn-secondary" id="cancelShopItemBtn">Cancel</button>
+                                    <button type="button" class="btn btn-danger" id="deleteShopItemBtn" style="display: none;">Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="suggestions-section">
+                            <h3>Suggestions & Feedback</h3>
+                            <p>Help us improve the calculator by sharing your ideas and feedback!</p>
+                            
+                            <form id="suggestionForm">
+                                <div class="form-group">
+                                    <label for="suggestionType">Type of Suggestion</label>
+                                    <select id="suggestionType" required>
+                                        <option value="">Select a type...</option>
+                                        <option value="feature">New Feature</option>
+                                        <option value="improvement">UI/UX Improvement</option>
+                                        <option value="calculation">Calculation Enhancement</option>
+                                        <option value="bug">Bug Report</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="suggestionTitle">Title</label>
+                                    <input type="text" id="suggestionTitle" required placeholder="Brief title for your suggestion">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="suggestionDescription">Description</label>
+                                    <textarea id="suggestionDescription" rows="4" required placeholder="Describe your suggestion in detail..."></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="suggestionPriority">Priority (Optional)</label>
+                                    <select id="suggestionPriority">
+                                        <option value="low">Low</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Submit Suggestion
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="clearSuggestionBtn">Clear</button>
+                                </div>
+                            </form>
+                            
+                            <div class="suggestions-list" id="suggestionsList">
+                                <h4>Your Suggestions</h4>
+                                <div id="suggestionsContainer">
+                                    <p class="no-data">No suggestions submitted yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="comparisonModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Farm to Comparison</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="comparisonForm">
+                    <div class="form-group">
+                        <label for="compPlantType">Plant Type</label>
+                        <select id="compPlantType" required>
+                            <option value="">Select a plant...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="compLayers">Layers</label>
+                            <input type="number" id="compLayers" min="1" value="2">
+                        </div>
+                        <div class="form-group">
+                            <label for="compLanes">Collection Lanes</label>
+                            <input type="number" id="compLanes" min="1" value="10">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="compPistonsPerPlant">
+                            <span class="checkmark"></span>
+                            Use Pistons per Plant
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="compIncludeUnloaders" checked>
+                            <span class="checkmark"></span>
+                            Include Unloaders
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="addToComparisonBtn">Add to Comparison</button>
+                <button class="btn btn-secondary" id="cancelComparisonBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

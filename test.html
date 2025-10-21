@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Minecraft Farm Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f0f0f0;
+        }
+        .test-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-item {
+            margin: 1rem 0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-item.pass {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .test-item.fail {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .test-item.pending {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Farm Calculator Test Suite</h1>
+        <p>This page tests the core functionality of the Minecraft Farm Calculator.</p>
+        
+        <button class="btn" onclick="runTests()">Run All Tests</button>
+        <button class="btn" onclick="clearTests()">Clear Results</button>
+        
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        // Include the main app for testing
+        const script = document.createElement('script');
+        script.src = 'app.js';
+        document.head.appendChild(script);
+
+        function runTests() {
+            const results = document.getElementById('testResults');
+            results.innerHTML = '<h2>Running Tests...</h2>';
+            
+            // Wait for app to load
+            setTimeout(() => {
+                if (window.farmCalculator) {
+                    runCalculatorTests();
+                } else {
+                    results.innerHTML += '<div class="test-item fail">❌ Failed to load calculator app</div>';
+                }
+            }, 1000);
+        }
+
+        function runCalculatorTests() {
+            const results = document.getElementById('testResults');
+            results.innerHTML = '<h2>Test Results</h2>';
+            
+            const tests = [
+                {
+                    name: 'App Initialization',
+                    test: () => window.farmCalculator !== undefined
+                },
+                {
+                    name: 'Plant Profiles Loaded',
+                    test: () => window.farmCalculator.plantProfiles.size > 0
+                },
+                {
+                    name: 'Cost Profile Initialized',
+                    test: () => window.farmCalculator.costProfile.redstoneTorch === 10
+                },
+                {
+                    name: 'Design Params Set',
+                    test: () => window.farmCalculator.designParams.plotWidth === 74
+                },
+                {
+                    name: 'Plants Per Layer Calculation',
+                    test: () => {
+                        const plot = { width: 74, depth: 74 };
+                        const plant = { densityPerBlock: 0.25 };
+                        return window.farmCalculator.plantsPerLayer(plot, plant) === 1369;
+                    }
+                },
+                {
+                    name: 'Cactus Layer Cost Calculation',
+                    test: () => {
+                        const plot = { width: 74, depth: 74 };
+                        const designParams = { lanes: 10, includeUnloaders: true };
+                        const cost = window.farmCalculator.cactusLayerCost(plot, designParams, window.farmCalculator.costProfile);
+                        return cost > 0;
+                    }
+                },
+                {
+                    name: 'Scenario Evaluation',
+                    test: () => {
+                        const plot = { width: 74, depth: 74 };
+                        const plant = window.farmCalculator.plantProfiles.get('Wheat');
+                        const designParams = { layers: 2, lanes: 10, observerShare: 16, pistonsPerPlant: false, includeUnloaders: true };
+                        const result = window.farmCalculator.evaluateScenario(plot, plant, designParams, window.farmCalculator.costProfile, 2000000);
+                        return result.farmType === 'Wheat' && result.layers === 2;
+                    }
+                },
+                {
+                    name: 'Data Persistence',
+                    test: () => {
+                        const originalData = localStorage.getItem('farmCalculatorData');
+                        return originalData !== null;
+                    }
+                }
+            ];
+
+            let passed = 0;
+            let failed = 0;
+
+            tests.forEach(test => {
+                try {
+                    const result = test.test();
+                    const testDiv = document.createElement('div');
+                    testDiv.className = `test-item ${result ? 'pass' : 'fail'}`;
+                    testDiv.innerHTML = `${result ? '✅' : '❌'} ${test.name}`;
+                    results.appendChild(testDiv);
+                    
+                    if (result) passed++;
+                    else failed++;
+                } catch (error) {
+                    const testDiv = document.createElement('div');
+                    testDiv.className = 'test-item fail';
+                    testDiv.innerHTML = `❌ ${test.name} - Error: ${error.message}`;
+                    results.appendChild(testDiv);
+                    failed++;
+                }
+            });
+
+            const summary = document.createElement('div');
+            summary.className = 'test-item';
+            summary.innerHTML = `<strong>Summary: ${passed} passed, ${failed} failed</strong>`;
+            results.appendChild(summary);
+        }
+
+        function clearTests() {
+            document.getElementById('testResults').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
